@@ -17,7 +17,7 @@ package-lock.json  # Optional - some teams keep it, some don't
 # ==================== #
 # DATABASE
 # ==================== #
-/.db                 # Your MySQL data folder
+/db                 # Your MySQL data folder
 *.db
 .dblwr
 *.sqlite
@@ -62,3 +62,4 @@ logs/
 # ==================== #
 tmp/
 temp/
+/db
