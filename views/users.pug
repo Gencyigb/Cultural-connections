@@ -1,0 +1,7 @@
+extends layouts/layout.pug
+
+block content
+  h1 Community Members
+  ul
+    each user in users
+      li #{user.name} - #{user.country}

@@ -1,0 +1,45 @@
+extends layouts/layout.pug
+
+block content
+  .categories-page
+    h1.page-title Browse Categories
+    
+    // Main Categories
+    section.categories-grid
+      h2.section-title Topics
+      
+      .category-cards
+        each category in categories
+          .category-card
+            .category-icon
+              if category.name === 'Food'
+                span 🍲
+              else if category.name === 'Language'
+                span 🗣️
+              else if category.name === 'Traditions'
+                span 🎎
+              else if category.name === 'Festivals'
+                span 🎉
+              else if category.name === 'Customs'
+                span 👘
+              else
+                span 📚
+            h3.category-name= category.name
+            p.category-count #{category.count} posts
+            a(href=`/posts?category=${category.name.toLowerCase()}`) Browse →
+    
+    // Countries
+    section.countries-section
+      h2.section-title Countries
+      .country-list
+        each country in countries
+          .country-item
+            a(href=`/posts?country=${country.name}`)
+              span #{country.flag || '🌍'} #{country.name} (#{country.postCount})
+    
+    // Tags
+    section.tags-section
+      h2.section-title Popular Tags
+      .tag-cloud
+        each tag in tags
+          a.tag(href=`/posts?tag=${tag.name}`) ##{tag.name}
