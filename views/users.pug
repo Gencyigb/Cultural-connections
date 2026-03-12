@@ -1,7 +1,22 @@
 extends layouts/layout.pug
 
 block content
-  h1 Community Members
-  ul
-    each user in users
-      li #{user.name} - #{user.country}
+  .users-page
+    h1.page-title Community Members
+    p.page-subtitle Meet people from different cultures and explore their profiles.
+
+    .user-cards
+      each user in users
+        .user-card
+          .user-avatar 👤
+          h2.user-name= user.name
+          p.user-country
+            strong Country:
+            |  #{user.country}
+          p.user-language
+            strong Languages:
+            |  #{user.language}
+          p.user-interest
+            strong Interests:
+            |  #{user.interests}
+          a.view-profile-btn(href=`/users/${user.id}`) View Profile →
