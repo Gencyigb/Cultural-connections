@@ -10,13 +10,17 @@ block content
         .user-card
           .user-avatar 👤
           h2.user-name= user.name
+
           p.user-country
-            strong Country:
+            strong Culture:
             |  #{user.country}
+
           p.user-language
             strong Languages:
             |  #{user.language}
+
           p.user-interest
             strong Interests:
             |  #{user.interests}
+
           a.view-profile-btn(href=`/users/${user.id}`) View Profile →
