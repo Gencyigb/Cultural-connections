@@ -1,0 +1,20 @@
+extends layouts/layout.pug
+
+block content
+  h1 User Profile
+
+  if user
+    p
+      strong Name:
+      |  #{user.name}
+
+    p
+      strong Country:
+      |  #{user.country}
+
+    p
+      strong Bio:
+      |  #{user.bio}
+
+  else
+    p User not found
