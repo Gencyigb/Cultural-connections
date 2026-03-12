@@ -1,130 +1,173 @@
-// Import express.js
 const express = require("express");
 
-// Create express app
-var app = express();
+const app = express();
 
 // Configure PUG
-app.set('view engine', 'pug');
-app.set('views', './views');
+app.set("view engine", "pug");
+app.set("views", "./views");
 
-// Add static files location 
+// Static files
 app.use(express.static("static"));
-app.use(express.static("public")); 
+app.use(express.static("public"));
 
-// Get the functions in the db.js file to use
-const db = require('./services/db');
-
-// Create a route for root - UPDATED to use PUG
+// Home page
 app.get("/", function(req, res){
-  res.render('index', { 
-    title: 'Home' 
+  res.render("index", {
+    title: "Home"
   });
 });
 
-// Create a route for testing the db
-app.get("/db_test", function(req, res){
-  sql = 'select * from test_table';
-  db.query(sql).then(results =>{
-    console.log(results);
-    res.send(results)
-  });
-});
-
-// Create a route for /goodbye
-app.get("/goodbye", function(req, res){
-  res.send("Goodbye world!");
-});
-
-// Create a dynamic route for /hello/<name>
-app.get("/hello/:name", function(req, res){
-  console.log(req.params);
-  res.send("Hello " + req.params.name);
-});
-
-// SAMPLE DATA WITHOUT PULLING FROM SQL DATABASE (FOR NOW)
-
-// Categories page (Lucies)
+// Categories page
 app.get("/categories", function(req, res){
-  // Sample data - you'll replace this with database queries later
+
   const categories = [
-    { name: 'Food', count: 156 },
-    { name: 'Language', count: 89 },
-    { name: 'Traditions', count: 124 },
-    { name: 'Festivals', count: 67 },
-    { name: 'Customs', count: 78 },
-    { name: 'History', count: 45 }
+    { name: "Food", count: 156 },
+    { name: "Language", count: 89 },
+    { name: "Traditions", count: 124 },
+    { name: "Festivals", count: 67 },
+    { name: "Customs", count: 78 },
+    { name: "History", count: 45 }
   ];
-  
-  // Countries data
+
   const countries = [
-    { name: 'Italy', flag: '🇮🇹', postCount: 45 },
-    { name: 'Japan', flag: '🇯🇵', postCount: 38 },
-    { name: 'Nigeria', flag: '🇳🇬', postCount: 27 },
-    { name: 'Mexico', flag: '🇲🇽', postCount: 22 },
-    { name: 'India', flag: '🇮🇳', postCount: 35 }
+    { name: "Italy", flag: "🇮🇹", postCount: 45 },
+    { name: "Japan", flag: "🇯🇵", postCount: 38 },
+    { name: "Nigeria", flag: "🇳🇬", postCount: 27 },
+    { name: "Mexico", flag: "🇲🇽", postCount: 22 },
+    { name: "India", flag: "🇮🇳", postCount: 35 }
   ];
-  
-  // Tags data
+
   const tags = [
-    { name: 'recipes', count: 89 },
-    { name: 'cooking', count: 78 },
-    { name: 'traditions', count: 67 },
-    { name: 'language', count: 56 },
-    { name: 'holidays', count: 45 },
-    { name: 'history', count: 34 }
+    { name: "recipes", count: 89 },
+    { name: "cooking", count: 78 },
+    { name: "traditions", count: 67 },
+    { name: "language", count: 56 },
+    { name: "holidays", count: 45 },
+    { name: "history", count: 34 }
   ];
-  
-  // Pass ALL variables to the template
-  res.render('categories', {
-    title: 'Categories',
+
+  res.render("categories", {
+    title: "Categories",
     categories: categories,
     countries: countries,
     tags: tags
   });
 });
 
-// Users list page
+// USERS PAGE
 app.get("/users", function(req, res){
+
   const users = [
-    { name: 'Maria', country: 'Italy' },
-    { name: 'Takashi', country: 'Japan' },
-    { name: 'Amara', country: 'Nigeria' }
+    {
+      id: 1,
+      name: "Layla",
+      country: "Middle Eastern Culture",
+      language: "Arabic, English",
+      interests: "Traditional food, cultural festivals, music",
+      bio: "I enjoy sharing Middle Eastern traditions, food, and cultural celebrations."
+    },
+    {
+      id: 2,
+      name: "Oliver",
+      country: "British Culture",
+      language: "English",
+      interests: "History, tea culture, literature",
+      bio: "I enjoy discussing British traditions, historical sites, and cultural heritage."
+    },
+    {
+      id: 3,
+      name: "Mei",
+      country: "Asian Culture",
+      language: "Chinese, English",
+      interests: "Tea culture, calligraphy, traditional festivals",
+      bio: "I enjoy sharing Asian traditions and learning about cultures from around the world."
+    },
+    {
+      id: 4,
+      name: "Kai",
+      country: "Caribbean Culture",
+      language: "English, Creole",
+      interests: "Music, dance, Caribbean festivals",
+      bio: "Caribbean culture is vibrant with music and festivals that I love sharing."
+    },
+    {
+      id: 5,
+      name: "Amara",
+      country: "African Culture",
+      language: "English, Yoruba",
+      interests: "Traditional clothing, storytelling, festivals",
+      bio: "I enjoy sharing African traditions, storytelling, and cultural celebrations."
+    }
   ];
-  
-  res.render('users', {
-    title: 'Community',
+
+  res.render("users", {
+    title: "Community",
     users: users
   });
 });
 
-// Individual user profile page
-app.get("/users/:name", function(req, res){
+// USER PROFILE PAGE
+app.get("/users/:id", function(req, res){
 
   const users = [
-    { name: 'Maria', country: 'Italy', bio: 'Loves Italian food and culture.' },
-    { name: 'Takashi', country: 'Japan', bio: 'Interested in Japanese traditions.' },
-    { name: 'Amara', country: 'Nigeria', bio: 'Shares Nigerian festivals and customs.' }
+    {
+      id: 1,
+      name: "Layla",
+      country: "Middle Eastern Culture",
+      language: "Arabic, English",
+      interests: "Traditional food, cultural festivals, music",
+      bio: "I enjoy sharing Middle Eastern traditions, food, and cultural celebrations."
+    },
+    {
+      id: 2,
+      name: "Oliver",
+      country: "British Culture",
+      language: "English",
+      interests: "History, tea culture, literature",
+      bio: "I enjoy discussing British traditions, historical sites, and cultural heritage."
+    },
+    {
+      id: 3,
+      name: "Mei",
+      country: "Asian Culture",
+      language: "Chinese, English",
+      interests: "Tea culture, calligraphy, traditional festivals",
+      bio: "I enjoy sharing Asian traditions and learning about cultures from around the world."
+    },
+    {
+      id: 4,
+      name: "Kai",
+      country: "Caribbean Culture",
+      language: "English, Creole",
+      interests: "Music, dance, Caribbean festivals",
+      bio: "Caribbean culture is vibrant with music and festivals that I love sharing."
+    },
+    {
+      id: 5,
+      name: "Amara",
+      country: "African Culture",
+      language: "English, Yoruba",
+      interests: "Traditional clothing, storytelling, festivals",
+      bio: "I enjoy sharing African traditions, storytelling, and cultural celebrations."
+    }
   ];
 
-  const user = users.find(u => u.name.toLowerCase() === req.params.name.toLowerCase());
+  const user = users.find(u => u.id == req.params.id);
 
-  res.render('profile', {
-    title: 'Profile',
+  res.render("profile", {
+    title: "Profile",
     user: user
   });
-
 });
 
-// Posts list page
+// POSTS PAGE
 app.get("/posts", function(req, res){
-  res.render('posts', {
-    title: 'Posts'
+  res.render("posts", {
+    title: "Posts"
   });
 });
 
-// Start server on port 3000
+// START SERVER
 app.listen(3000, function(){
-  console.log('Server running at http://127.0.0.1:3000/');
-  console.log('View your categories page at http://127.0.0.1:3000/categories');
+  console.log("Server running at http://127.0.0.1:3000/");
 });
