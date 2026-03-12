@@ -11,8 +11,8 @@ CREATE TABLE users (
 );
 
 INSERT INTO users (name, country, language, interests, bio) VALUES
-('Sofia Martinez', 'Spain', 'Spanish, English', 'Food, Travel, Festivals', 'I enjoy sharing Spanish culture and learning about traditions from other countries.'),
-('Ahmed Hassan', 'Egypt', 'Arabic, English', 'History, Music, Culture', 'I love discussing Egyptian history, cultural traditions, and meeting new people.'),
-('Mei Lin', 'China', 'Chinese, English', 'Art, Tea Culture, Calligraphy', 'I enjoy sharing Chinese traditions and learning about cultures around the world.'),
-('Lucas Silva', 'Brazil', 'Portuguese, English', 'Football, Music, Dance', 'Brazilian culture is full of energy, music, and celebration, which I love to share.'),
-('Anna Schmidt', 'Germany', 'German, English', 'Travel, Technology, Food', 'I like learning about new cultures and exchanging ideas with people from different backgrounds.');
+('Layla', 'Middle Eastern Culture', 'Arabic, English', 'Traditional food, cultural festivals, music', 'I enjoy sharing Middle Eastern traditions, food, and cultural celebrations.'),
+('Oliver', 'British Culture', 'English', 'History, tea culture, literature', 'I enjoy discussing British traditions, historical sites, and cultural heritage.'),
+('Mei', 'Asian Culture', 'Chinese, English', 'Tea culture, calligraphy, traditional festivals', 'I enjoy sharing Asian traditions and learning about cultures from around the world.'),
+('Kai', 'Caribbean Culture', 'English, Creole', 'Music, dance, Caribbean festivals', 'Caribbean culture is vibrant with music and festivals that I love sharing.'),
+('Amara', 'African Culture', 'English, Yoruba', 'Traditional clothing, storytelling, festivals', 'I enjoy sharing African traditions, storytelling, and cultural celebrations.');
