@@ -4,22 +4,19 @@ const express = require("express");
 // Create express app
 var app = express();
 
-// ===== NEW: Configure PUG =====
+// Configure PUG
 app.set('view engine', 'pug');
 app.set('views', './views');
 
-// Add static files location (your existing static folder + new public folder)
+// Add static files location 
 app.use(express.static("static"));
-app.use(express.static("public")); // NEW: for styles.css
+app.use(express.static("public")); 
 
 // Get the functions in the db.js file to use
 const db = require('./services/db');
 
-// ===== YOUR EXISTING ROUTES (KEEP THESE) =====
-
 // Create a route for root - UPDATED to use PUG
 app.get("/", function(req, res){
-  // Instead of res.send, use res.render with PUG
   res.render('index', { 
     title: 'Home' 
   });
@@ -45,9 +42,9 @@ app.get("/hello/:name", function(req, res){
   res.send("Hello " + req.params.name);
 });
 
-// ===== NEW ROUTES FOR SPRINT 3 =====
+// SAMPLE DATA WITHOUT PULLING FROM SQL DATABASE (FOR NOW)
 
-// Categories page - YOUR PAGE
+// Categories page (Lucies)
 app.get("/categories", function(req, res){
   // Sample data - you'll replace this with database queries later
   const categories = [
@@ -55,18 +52,40 @@ app.get("/categories", function(req, res){
     { name: 'Language', count: 89 },
     { name: 'Traditions', count: 124 },
     { name: 'Festivals', count: 67 },
-    { name: 'Customs', count: 78 }
+    { name: 'Customs', count: 78 },
+    { name: 'History', count: 45 }
   ];
   
+  // Countries data
+  const countries = [
+    { name: 'Italy', flag: '🇮🇹', postCount: 45 },
+    { name: 'Japan', flag: '🇯🇵', postCount: 38 },
+    { name: 'Nigeria', flag: '🇳🇬', postCount: 27 },
+    { name: 'Mexico', flag: '🇲🇽', postCount: 22 },
+    { name: 'India', flag: '🇮🇳', postCount: 35 }
+  ];
+  
+  // Tags data
+  const tags = [
+    { name: 'recipes', count: 89 },
+    { name: 'cooking', count: 78 },
+    { name: 'traditions', count: 67 },
+    { name: 'language', count: 56 },
+    { name: 'holidays', count: 45 },
+    { name: 'history', count: 34 }
+  ];
+  
+  // Pass ALL variables to the template
   res.render('categories', {
     title: 'Categories',
-    categories: categories
+    categories: categories,
+    countries: countries,
+    tags: tags
   });
 });
 
 // Users list page
 app.get("/users", function(req, res){
-  // You can replace this with a real database query
   const users = [
     { name: 'Maria', country: 'Italy' },
     { name: 'Takashi', country: 'Japan' },
