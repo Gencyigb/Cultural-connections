@@ -1,20 +1,30 @@
 extends layouts/layout.pug
 
 block content
-  h1 User Profile
+  .profile-page
+    h1.page-title User Profile
 
-  if user
-    p
-      strong Name:
-      |  #{user.name}
+    if user
+      .profile-card
+        .profile-avatar-large 👤
+        h2.profile-name= user.name
 
-    p
-      strong Country:
-      |  #{user.country}
+        p
+          strong Culture:
+          |  #{user.country}
 
-    p
-      strong Bio:
-      |  #{user.bio}
+        p
+          strong Languages:
+          |  #{user.language}
 
-  else
-    p User not found
+        p
+          strong Interests:
+          |  #{user.interests}
+
+        p
+          strong Bio:
+          |  #{user.bio}
+
+        a.back-link(href="/users") ← Back to Community
+    else
+      p User not found.
