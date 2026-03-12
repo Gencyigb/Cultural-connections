@@ -98,6 +98,24 @@ app.get("/users", function(req, res){
   });
 });
 
+// Individual user profile page
+app.get("/users/:name", function(req, res){
+
+  const users = [
+    { name: 'Maria', country: 'Italy', bio: 'Loves Italian food and culture.' },
+    { name: 'Takashi', country: 'Japan', bio: 'Interested in Japanese traditions.' },
+    { name: 'Amara', country: 'Nigeria', bio: 'Shares Nigerian festivals and customs.' }
+  ];
+
+  const user = users.find(u => u.name.toLowerCase() === req.params.name.toLowerCase());
+
+  res.render('profile', {
+    title: 'Profile',
+    user: user
+  });
+
+});
+
 // Posts list page
 app.get("/posts", function(req, res){
   res.render('posts', {
