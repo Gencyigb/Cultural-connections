@@ -1,16 +1,11 @@
 extends layouts/layout.pug
 
 block content
-  h1 User Profile
-
-  // Check if user exists
   if user
-    h2= user.name
+    h1= user.name
     p Country: #{user.country}
     p Languages: #{user.language}
     p Interests: #{user.interests}
     p Bio: #{user.bio}
-
-    a(href="/users") ← Back
   else
     p User not found
