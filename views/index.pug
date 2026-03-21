@@ -1,13 +1,33 @@
 extends layouts/layout.pug
 
 block content
-  .home-page
-    h1 Welcome to Cultural Connections
-    p Share your culture and learn from others
+  .hero
+    h1 Discover and share cultures around the world
+    p Explore traditions, recipes, languages and customs shared by real people
 
-    // Navigation buttons
-    a(href="/users") View Community
-    br
-    a(href="/posts") Browse Posts
-    br
-    a(href="/categories") Explore Categories
+    .hero-buttons
+      a.btn(href="/categories") Start Exploring
+      a.btn.secondary(href="/users") Create Account
+
+  h2 Featured Cultures
+
+  .culture-grid
+    .card
+      img(src="https://images.unsplash.com/photo-1604908176997-431e5b9b17c5")
+      h3 Middle Eastern Culture
+      a(href="/posts") View
+
+    .card
+      img(src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg")
+      h3 British Culture
+      a(href="/posts") View
+
+    .card
+      img(src="https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b")
+      h3 Asian Culture
+      a(href="/posts") View
+
+    .card
+      img(src="https://images.unsplash.com/photo-1517260911205-8c2b5c3c5b4c")
+      h3 Caribbean Culture
+      a(href="/posts") View
