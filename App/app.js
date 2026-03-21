@@ -11,7 +11,7 @@ app.use(express.static("public"));
 
 // ---------------- SAMPLE DATA ----------------
 
-// Users (from teacher requirement)
+// Users (requirement)
 const users = [
   { id: 1, name: "Layla", country: "Turkey", language: "Arabic, English", interests: "Food, Festivals", bio: "Sharing Turkish traditions" },
   { id: 2, name: "Oliver", country: "UK", language: "English", interests: "Tea, History", bio: "British culture lover" },
@@ -20,7 +20,7 @@ const users = [
   { id: 5, name: "Amara", country: "Nigeria", language: "English", interests: "Storytelling", bio: "African heritage" }
 ];
 
-// Listings (IMPORTANT for Sprint 3)
+// Listings (IMPORTANT)
 const posts = [
   { id: 1, title: "Turkish Breakfast", category: "Food", country: "Turkey", content: "Olives, cheese and tea", user_id: 1 },
   { id: 2, title: "Diwali Festival", category: "Festivals", country: "India", content: "Festival of lights", user_id: 2 },
