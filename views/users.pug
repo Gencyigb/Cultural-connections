@@ -2,25 +2,16 @@ extends layouts/layout.pug
 
 block content
   .users-page
-    h1.page-title Community Members
-    p.page-subtitle Meet people from different cultures and explore their profiles.
+    h1 Community Members
 
-    .user-cards
-      each user in users
-        .user-card
-          .user-avatar 👤
-          h2.user-name= user.name
+    // Loop through users from database
+    each user in users
+      .user-card
+        h2= user.name
+        p Country: #{user.country}
+        p Languages: #{user.language}
+        p Interests: #{user.interests}
+        p Bio: #{user.bio}
 
-          p.user-country
-            strong Culture:
-            |  #{user.country}
-
-          p.user-language
-            strong Languages:
-            |  #{user.language}
-
-          p.user-interest
-            strong Interests:
-            |  #{user.interests}
-
-          a.view-profile-btn(href=`/users/${user.id}`) View Profile →
+        // Link to profile page
+        a(href=`/users/${user.id}`) View Profile →
