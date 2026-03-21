@@ -3,10 +3,8 @@ extends layouts/layout.pug
 block content
   h1 Cultural Posts
 
-  // Loop through posts with joined user data
   each post in posts
     .post-card
       h2= post.title
       p Country: #{post.country}
-      p= post.content
-      p Posted by #{post.name}
+      a(href="/posts/" + post.id) View Details
