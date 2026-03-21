@@ -1,6 +1,7 @@
 "use strict";
 
-// Include the app.js file.
-// This will run the code.
-console.log("entrypoint");
-const app = require("./app/app.js");
+// Entry point for the app
+console.log("Starting server...");
+
+// Load the main app file
+const app = require("./App/app.js");
