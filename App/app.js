@@ -1,173 +1,84 @@
 const express = require("express");
+const path = require("path");
+const sqlite3 = require("sqlite3").verbose();
 
 const app = express();
 
-// Configure PUG
+// VIEW ENGINE
 app.set("view engine", "pug");
-app.set("views", "./views");
+app.set("views", path.join(__dirname, "../views"));
 
-// Static files
-app.use(express.static("static"));
+// STATIC
 app.use(express.static("public"));
 
-// Home page
-app.get("/", function(req, res){
-  res.render("index", {
-    title: "Home"
-  });
-});
+// DATABASE
+const db = new sqlite3.Database("./sd2.db");
 
-// Categories page
-app.get("/categories", function(req, res){
-
-  const categories = [
-    { name: "Food", count: 156 },
-    { name: "Language", count: 89 },
-    { name: "Traditions", count: 124 },
-    { name: "Festivals", count: 67 },
-    { name: "Customs", count: 78 },
-    { name: "History", count: 45 }
-  ];
-
-  const countries = [
-    { name: "Italy", flag: "🇮🇹", postCount: 45 },
-    { name: "Japan", flag: "🇯🇵", postCount: 38 },
-    { name: "Nigeria", flag: "🇳🇬", postCount: 27 },
-    { name: "Mexico", flag: "🇲🇽", postCount: 22 },
-    { name: "India", flag: "🇮🇳", postCount: 35 }
-  ];
-
-  const tags = [
-    { name: "recipes", count: 89 },
-    { name: "cooking", count: 78 },
-    { name: "traditions", count: 67 },
-    { name: "language", count: 56 },
-    { name: "holidays", count: 45 },
-    { name: "history", count: 34 }
-  ];
-
-  res.render("categories", {
-    title: "Categories",
-    categories: categories,
-    countries: countries,
-    tags: tags
-  });
+// HOME
+app.get("/", (req, res) => {
+  res.render("index", { title: "Home" });
 });
 
 // USERS PAGE
-app.get("/users", function(req, res){
-
-  const users = [
-    {
-      id: 1,
-      name: "Layla",
-      country: "Middle Eastern Culture",
-      language: "Arabic, English",
-      interests: "Traditional food, cultural festivals, music",
-      bio: "I enjoy sharing Middle Eastern traditions, food, and cultural celebrations."
-    },
-    {
-      id: 2,
-      name: "Oliver",
-      country: "British Culture",
-      language: "English",
-      interests: "History, tea culture, literature",
-      bio: "I enjoy discussing British traditions, historical sites, and cultural heritage."
-    },
-    {
-      id: 3,
-      name: "Mei",
-      country: "Asian Culture",
-      language: "Chinese, English",
-      interests: "Tea culture, calligraphy, traditional festivals",
-      bio: "I enjoy sharing Asian traditions and learning about cultures from around the world."
-    },
-    {
-      id: 4,
-      name: "Kai",
-      country: "Caribbean Culture",
-      language: "English, Creole",
-      interests: "Music, dance, Caribbean festivals",
-      bio: "Caribbean culture is vibrant with music and festivals that I love sharing."
-    },
-    {
-      id: 5,
-      name: "Amara",
-      country: "African Culture",
-      language: "English, Yoruba",
-      interests: "Traditional clothing, storytelling, festivals",
-      bio: "I enjoy sharing African traditions, storytelling, and cultural celebrations."
-    }
-  ];
-
-  res.render("users", {
-    title: "Community",
-    users: users
+app.get("/users", (req, res) => {
+  db.all("SELECT * FROM users", [], (err, rows) => {
+    if (err) return res.send(err);
+    res.render("users", {
+      title: "Community",
+      users: rows
+    });
   });
 });
 
-// USER PROFILE PAGE
-app.get("/users/:id", function(req, res){
+// PROFILE PAGE
+app.get("/users/:id", (req, res) => {
+  db.get("SELECT * FROM users WHERE id = ?", [req.params.id], (err, user) => {
+    if (err) return res.send(err);
 
-  const users = [
-    {
-      id: 1,
-      name: "Layla",
-      country: "Middle Eastern Culture",
-      language: "Arabic, English",
-      interests: "Traditional food, cultural festivals, music",
-      bio: "I enjoy sharing Middle Eastern traditions, food, and cultural celebrations."
-    },
-    {
-      id: 2,
-      name: "Oliver",
-      country: "British Culture",
-      language: "English",
-      interests: "History, tea culture, literature",
-      bio: "I enjoy discussing British traditions, historical sites, and cultural heritage."
-    },
-    {
-      id: 3,
-      name: "Mei",
-      country: "Asian Culture",
-      language: "Chinese, English",
-      interests: "Tea culture, calligraphy, traditional festivals",
-      bio: "I enjoy sharing Asian traditions and learning about cultures from around the world."
-    },
-    {
-      id: 4,
-      name: "Kai",
-      country: "Caribbean Culture",
-      language: "English, Creole",
-      interests: "Music, dance, Caribbean festivals",
-      bio: "Caribbean culture is vibrant with music and festivals that I love sharing."
-    },
-    {
-      id: 5,
-      name: "Amara",
-      country: "African Culture",
-      language: "English, Yoruba",
-      interests: "Traditional clothing, storytelling, festivals",
-      bio: "I enjoy sharing African traditions, storytelling, and cultural celebrations."
-    }
-  ];
-
-  const user = users.find(u => u.id == req.params.id);
-
-  res.render("profile", {
-    title: "Profile",
-    user: user
+    res.render("profile", {
+      title: "Profile",
+      user: user
+    });
   });
 });
 
 // POSTS PAGE
-app.get("/posts", function(req, res){
-  res.render("posts", {
-    title: "Posts"
+app.get("/posts", (req, res) => {
+  db.all(`
+    SELECT posts.*, users.name 
+    FROM posts 
+    JOIN users ON posts.user_id = users.id
+  `, [], (err, posts) => {
+    if (err) return res.send(err);
+
+    res.render("posts", {
+      title: "Posts",
+      posts: posts
+    });
+  });
+});
+
+// CATEGORIES PAGE
+app.get("/categories", (req, res) => {
+  db.all(`
+    SELECT country AS name, COUNT(*) as count 
+    FROM posts 
+    GROUP BY country
+  `, [], (err, categories) => {
+    if (err) return res.send(err);
+
+    res.render("categories", {
+      title: "Categories",
+      categories: categories,
+      countries: [],
+      tags: []
+    });
   });
 });
 
 // START SERVER
-app.listen(3000, function(){
-  console.log("Server running at http://127.0.0.1:3000/");
+app.listen(3000, () => {
+  console.log("Server running at http://localhost:3000");
 });
+
+module.exports = app;
