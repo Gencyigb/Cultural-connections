@@ -1,17 +1,12 @@
 extends layouts/layout.pug
 
 block content
-  .users-page
-    h1 Community Members
+  h1 Community Members
 
-    // Loop through users from database
+  .user-cards
     each user in users
       .user-card
         h2= user.name
         p Country: #{user.country}
-        p Languages: #{user.language}
-        p Interests: #{user.interests}
-        p Bio: #{user.bio}
-
-        // Link to profile page
-        a(href=`/users/${user.id}`) View Profile →
+        p Language: #{user.language}
+        a(href="/users/" + user.id) View Profile
