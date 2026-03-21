@@ -1,64 +1,179 @@
-body {
-  font-family: Arial;
+/* Reset */
+* {
   margin: 0;
-  background: #f5f5f5;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+/* Body */
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  color: #333;
+}
+
+/* =======================
+   NAVBAR (TOP BAR)
+======================= */
 .site-header {
-  background: #ccc;
-  padding: 10px;
+  background: #e6e6e6;
+  padding: 15px 0;
 }
 
 .navbar {
+  width: 90%;
+  margin: auto;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
 }
 
+/* Logo */
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Search */
+.navbar input {
+  padding: 8px 12px;
+  width: 200px;
+  border: none;
+  border-radius: 4px;
+}
+
+/* Links */
 .nav-links {
-  display: flex;
-  gap: 20px;
   list-style: none;
+  display: flex;
+  gap: 25px;
 }
 
+.nav-links a {
+  text-decoration: none;
+  color: #000;
+  font-weight: 500;
+}
+
+/* =======================
+   HERO SECTION
+======================= */
 .hero {
   text-align: center;
-  padding: 50px;
-  background: #ddd;
+  padding: 80px 20px;
+  background: #d9d9d9;
 }
 
+.hero h1 {
+  font-size: 40px;
+  margin-bottom: 15px;
+}
+
+.hero p {
+  font-size: 16px;
+  margin-bottom: 30px;
+}
+
+/* Buttons */
 .hero-buttons {
-  margin-top: 20px;
-}
-
-.btn {
-  padding: 10px 20px;
-  background: #bbb;
-  margin: 10px;
-  text-decoration: none;
-}
-
-.culture-grid {
   display: flex;
   justify-content: center;
   gap: 20px;
+}
+
+.btn {
+  padding: 12px 25px;
+  background: #bfbfbf;
+  text-decoration: none;
+  color: black;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  background: #a6a6a6;
+}
+
+.btn.secondary {
+  background: #cfcfcf;
+}
+
+/* =======================
+   FEATURED SECTION
+======================= */
+h2 {
+  text-align: center;
+  margin: 40px 0 20px;
+}
+
+/* Grid */
+.culture-grid {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
   padding: 20px;
 }
 
+/* Card */
 .card {
-  background: white;
-  padding: 10px;
-  width: 200px;
+  background: #e6e6e6;
+  width: 220px;
   text-align: center;
+  padding: 15px;
 }
 
+/* Image */
 .card img {
   width: 100%;
+  height: 130px;
+  object-fit: cover;
+  margin-bottom: 10px;
 }
 
+/* Title */
+.card h3 {
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+/* View Button */
+.card a {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #bfbfbf;
+  text-decoration: none;
+  color: black;
+  border-radius: 3px;
+}
+
+.card a:hover {
+  background: #a6a6a6;
+}
+
+/* =======================
+   USERS + POSTS (clean layout)
+======================= */
+.user-cards,
+.post-card {
+  width: 80%;
+  margin: auto;
+}
+
+.user-card,
+.post-card {
+  background: white;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 5px;
+}
+
+/* =======================
+   FOOTER
+======================= */
 .site-footer {
   text-align: center;
   padding: 20px;
-  background: #ccc;
-  margin-top: 20px;
+  background: #d9d9d9;
+  margin-top: 40px;
 }
