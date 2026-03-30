@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const db = require('./Services/db');  // ← ADD THIS - connects to MySQL
 
 // Set view engine
 app.set("view engine", "pug");
@@ -9,74 +10,112 @@ app.set("views", "./views");
 app.use(express.static("public"));
 
 /* -----------------------------
-   SAMPLE DATA (like database)
---------------------------------*/
-
-// Users 
-const users = [
-  { id: 1, name: "Layla", country: "Turkey", language: "Turkish, English", interests: "Food, Festivals", bio: "I love sharing Turkish culture and traditions." },
-  { id: 2, name: "Oliver", country: "UK", language: "English", interests: "Tea, History", bio: "British culture enthusiast." },
-  { id: 3, name: "Mei", country: "China", language: "Chinese, English", interests: "Calligraphy, Tea", bio: "Passionate about Chinese traditions." },
-  { id: 4, name: "Kai", country: "Jamaica", language: "English, Creole", interests: "Music, Dance", bio: "Caribbean culture is vibrant!" },
-  { id: 5, name: "Amara", country: "Nigeria", language: "English, Yoruba", interests: "Storytelling", bio: "African heritage lover." }
-];
-
-// Cultural posts (listing page + detail page)
-const posts = [
-  { id: 1, title: "Turkish Breakfast", country: "Turkey", content: "Olives, cheese and tea.", user_id: 1 },
-  { id: 2, title: "Diwali Festival", country: "India", content: "Festival of lights.", user_id: 2 },
-  { id: 3, title: "Chinese Tea Culture", country: "China", content: "Traditional tea rituals.", user_id: 3 },
-  { id: 4, title: "Caribbean Dance", country: "Jamaica", content: "Music and movement.", user_id: 4 },
-  { id: 5, title: "African Clothing", country: "Nigeria", content: "Traditional fashion styles.", user_id: 5 }
-];
-
-/* -----------------------------
-   ROUTES
+   ROUTES - USING REAL DATABASE
 --------------------------------*/
 
 // Homepage 
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
   res.render("index", { title: "Home" });
 });
 
-// Categories page
-app.get("/categories", (req, res) => {
-  const categories = [
-    { name: "Food", count: 120 },
-    { name: "Languages", count: 80 },
-    { name: "Traditions", count: 95 },
-    { name: "Festivals", count: 60 }
-  ];
-
-  res.render("categories", { categories });
+// Categories page - GETS DATA FROM MYSQL
+app.get("/categories", async (req, res) => {
+  try {
+    // Get category counts from posts table
+    const [categories] = await db.query(`
+      SELECT 
+        CASE 
+          WHEN title LIKE '%Breakfast%' OR title LIKE '%Food%' THEN 'Food'
+          WHEN title LIKE '%Festival%' OR title LIKE '%Diwali%' THEN 'Festivals'
+          WHEN title LIKE '%Tea%' OR title LIKE '%Culture%' THEN 'Traditions'
+          ELSE 'Other'
+        END as name,
+        COUNT(*) as count
+      FROM posts 
+      GROUP BY name
+    `);
+    
+    // Get countries from users table
+    const [countriesData] = await db.query(`
+      SELECT country, COUNT(*) as count 
+      FROM users 
+      GROUP BY country
+    `);
+    
+    const countries = countriesData.map(c => ({ 
+      name: c.country, 
+      flag: "🌍", 
+      postCount: c.count 
+    }));
+    
+    // Tags (can be from database or static)
+    const tags = [
+      { name: "food", count: 45 },
+      { name: "traditions", count: 32 },
+      { name: "language", count: 28 }
+    ];
+    
+    res.render("categories", { categories, countries, tags });
+  } catch (err) {
+    console.error("Database error:", err);
+    res.status(500).send("Database error");
+  }
 });
 
-// Users list page
-app.get("/users", (req, res) => {
-  res.render("users", { users });
+// Users list page - GETS REAL DATA FROM MYSQL
+app.get("/users", async (req, res) => {
+  try {
+    const [users] = await db.query("SELECT * FROM users");
+    res.render("users", { users });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Database error");
+  }
 });
 
-// Single user profile
-app.get("/users/:id", (req, res) => {
-  const user = users.find(u => u.id == req.params.id);
-  res.render("profile", { user });
+// Single user profile - GETS REAL DATA FROM MYSQL
+app.get("/users/:id", async (req, res) => {
+  try {
+    const [users] = await db.query("SELECT * FROM users WHERE id = ?", [req.params.id]);
+    if (users.length === 0) {
+      return res.status(404).send("User not found");
+    }
+    res.render("profile", { user: users[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Database error");
+  }
 });
 
-// Posts list page 
-app.get("/posts", (req, res) => {
-  res.render("posts", { posts });
+// Posts list page - GETS REAL DATA FROM MYSQL
+app.get("/posts", async (req, res) => {
+  try {
+    const [posts] = await db.query("SELECT * FROM posts");
+    res.render("posts", { posts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Database error");
+  }
 });
 
-// Single post detail page
-app.get("/posts/:id", (req, res) => {
-  const post = posts.find(p => p.id == req.params.id);
-  res.render("post-detail", { post });
+// Single post detail page - GETS REAL DATA FROM MYSQL
+app.get("/posts/:id", async (req, res) => {
+  try {
+    const [posts] = await db.query("SELECT * FROM posts WHERE id = ?", [req.params.id]);
+    if (posts.length === 0) {
+      return res.status(404).send("Post not found");
+    }
+    res.render("post-detail", { post: posts[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Database error");
+  }
 });
 
 /* -----------------------------
    SERVER START
 --------------------------------*/
 
-app.listen(3000, () => {
+app.listen(3000, '0.0.0.0', () => {
   console.log("Server running on http://localhost:3000");
 });

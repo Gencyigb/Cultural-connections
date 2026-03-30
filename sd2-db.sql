@@ -1,24 +1,31 @@
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS posts;
+-- Use your database
+USE sd2-db;
 
+-- Drop tables if they exist
+DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS users;
+
+-- Create users table
 CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    country TEXT,
-    language TEXT,
-    interests TEXT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    country VARCHAR(100),
+    language VARCHAR(100),
+    interests VARCHAR(100),
     bio TEXT
 );
 
+-- Create posts table
 CREATE TABLE posts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT,
-    country TEXT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(200),
+    country VARCHAR(100),
     content TEXT,
-    user_id INTEGER,
-    FOREIGN KEY(user_id) REFERENCES users(id)
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Insert sample users
 INSERT INTO users (name, country, language, interests, bio) VALUES
 ('Layla', 'Turkey', 'Turkish, English', 'Food, Festivals', 'Sharing Turkish traditions'),
 ('Oliver', 'UK', 'English', 'Tea, History', 'British culture lover'),
@@ -26,6 +33,7 @@ INSERT INTO users (name, country, language, interests, bio) VALUES
 ('Kai', 'Jamaica', 'English, Creole', 'Music', 'Caribbean culture'),
 ('Amara', 'Nigeria', 'English, Yoruba', 'Storytelling', 'African heritage');
 
+-- Insert sample posts
 INSERT INTO posts (title, country, content, user_id) VALUES
 ('Turkish Breakfast', 'Turkey', 'Olives and tea', 1),
 ('Diwali Festival', 'India', 'Festival of lights', 2),
