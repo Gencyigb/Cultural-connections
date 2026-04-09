@@ -9,7 +9,15 @@ block content
       p Languages: #{user.language}
       p Interests: #{user.interests}
       p Bio: #{user.bio}
-      
+
+hr
+h3 Cultural Engagement
+
+p Points from Cultural Contributions: #{user.points || 0}
+p Level: Explorer
+
+button(onclick="alert('Chat feature for cultural exchange coming soon')") 💬 Connect
+
       // NEW: Country information from API
       if countryInfo
         hr
