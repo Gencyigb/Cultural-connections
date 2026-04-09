@@ -2,11 +2,14 @@ extends layouts/layout.pug
 
 block content
   h1 Community Members
-
-  .user-cards
+  .users-list
     each user in users
       .user-card
+        if user.flag
+          img(src=user.flag, alt=`Flag of ${user.country}`, class="country-flag-small")
+        else
+          span.country-emoji 🌍
         h2= user.name
-        p Country: #{user.country}
-        p Language: #{user.language}
-        a(href="/users/" + user.id) View Profile
+        p 📍 #{user.country}
+        p 💬 #{user.bio}
+        a(href=`/users/${user.id}`) View Profile →
