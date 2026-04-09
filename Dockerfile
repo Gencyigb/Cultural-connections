@@ -1,20 +1,20 @@
-# Base image - Node 18+ has built-in fetch
+# Base image
 FROM node:18-alpine
 
 # Set working directory
 WORKDIR /src
 
-# Copy package files first (for better caching)
+# Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Install dependencies only (no supervisor)
 RUN npm install
 
-# Copy all application files
+# Copy all files
 COPY . .
 
-# Expose the port your app runs on
+# Expose port
 EXPOSE 3000
 
-# Start the application
-CMD ["node", "app.js"]
+# Start the app directly with node
+CMD ["node", "App/app.js"]

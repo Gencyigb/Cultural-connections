@@ -4,7 +4,7 @@ services:
       context: ./
     volumes:
       - .:/src
-    command: supervisor -e 'js,pug,html' index.js
+    command: node app/app.js
     ports:
       - "3000:3000"
     depends_on:

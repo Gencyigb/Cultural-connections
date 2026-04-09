@@ -3,7 +3,7 @@ const app = express();
 const db = require('./Services/db');
 
 // ===== NEW: Import fetch for API calls =====
-const fetch = require('node-fetch');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 // Set view engine
 app.set("view engine", "pug");
