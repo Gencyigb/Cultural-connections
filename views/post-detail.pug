@@ -1,4 +1,5 @@
 extends layouts/layout.pug
+
 block content
   if post
     h1= post.title
@@ -6,3 +7,28 @@ block content
     p= post.content
   else
     p Post not found
+
+  // ⭐ Rating Section
+  .rating-section
+    h3 Rate this post
+
+    .stars
+      span(data-value="1") ⭐
+      span(data-value="2") ⭐
+      span(data-value="3") ⭐
+      span(data-value="4") ⭐
+      span(data-value="5") ⭐
+
+    p Your Rating:
+      span#user-rating 0
+
+    p Average Rating: 4.6 / 5
+    p Total Points: 120
+
+  script.
+    document.querySelectorAll('.stars span').forEach(star => {
+      star.addEventListener('click', function() {
+        const value = this.getAttribute('data-value');
+        document.getElementById('user-rating').innerText = value;
+      });
+    });
