@@ -1,0 +1,10 @@
+extends layouts/layout.pug
+
+block content
+  h1 Cultural Posts
+
+  each post in posts
+    .post-card
+      h2= post.title
+      p Country: #{post.country}
+      a(href="/posts/" + post.id) View Details

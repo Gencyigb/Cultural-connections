@@ -1,0 +1,17 @@
+doctype html
+html
+  head
+    title Register
+    link(rel="stylesheet", href="/styles.css")
+  body
+    h1 Register
+    form(method="POST", action="/register")
+      input(type="text", name="name", placeholder="Name", required=true)
+      input(type="email", name="email", placeholder="Email", required=true)
+      input(type="password", name="password", placeholder="Password", required=true)
+      input(type="text", name="country", placeholder="Country")
+      input(type="text", name="language", placeholder="Language")
+      input(type="text", name="interests", placeholder="Interests")
+      textarea(name="bio", placeholder="Short bio")
+      button(type="submit") Register
+    a(href="/login") Login

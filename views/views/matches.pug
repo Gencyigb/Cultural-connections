@@ -1,0 +1,34 @@
+doctype html
+html
+  head
+    title Matches
+    link(rel="stylesheet", href="/styles.css")
+  body
+    h1 Matches for #{currentUser.name}
+
+    nav
+      a(href="/dashboard") Dashboard
+      |  
+      a(href="/logout") Logout
+
+    if matches.length === 0
+      p No matches found yet.
+
+    each user in matches
+      .card
+        h3= user.name
+        p
+          strong Country:
+          |  #{user.country}
+        p
+          strong Language:
+          |  #{user.language}
+        p
+          strong Interests:
+          |  #{user.interests}
+        p
+          strong Bio:
+          |  #{user.bio}
+        p
+          strong Match score:
+          |  #{user.matchScore}

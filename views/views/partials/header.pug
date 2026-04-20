@@ -1,0 +1,12 @@
+header.site-header
+  nav.navbar
+    .logo
+      a(href="/") Cultural Connections
+    ul.nav-links
+      li: a(href="/users") Community
+      li: a(href="/posts") Posts
+      li: a(href="/categories") Categories
+    .search-box
+      form(action="/search", method="GET")
+        input(type="text", name="q", placeholder="Search...")
+        button(type="submit")

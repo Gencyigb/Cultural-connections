@@ -1,0 +1,43 @@
+extends layouts/layout.pug
+
+block content
+  if user
+    .profile-container
+      h1= user.name
+      p Country: #{user.country}
+      p Languages: #{user.language}
+      p Interests: #{user.interests}
+      p Bio: #{user.bio}
+      
+      if countryInfo
+        hr
+        h3 Country Information
+        .country-info-box
+          if countryInfo.flag
+            img(src=countryInfo.flag, alt=`Flag of ${countryInfo.name}`, class="country-flag")
+          p <strong>📍 Official Name:</strong> #{countryInfo.name}
+          p <strong>🏛️ Capital:</strong> #{countryInfo.capital}
+          p <strong>👥 Population:</strong> #{countryInfo.population}
+          p <strong>💰 Currency:</strong> #{countryInfo.currency}
+          p <strong>🌎 Region:</strong> #{countryInfo.region}
+          if countryInfo.maps
+            p <strong>🗺️</strong> <a href=countryInfo.maps target="_blank">View on Google Maps →</a>
+      else
+        .country-info-box
+          p <strong>Country:</strong> #{user.country}
+          if user.country === 'Turkey'
+            span 🇹🇷
+          else if user.country === 'UK'
+            span 🇬🇧
+          else if user.country === 'China'
+            span 🇨🇳
+          else if user.country === 'Jamaica'
+            span 🇯🇲
+          else if user.country === 'Nigeria'
+            span 🇳🇬
+          else
+            span 🌍
+      
+      a(href="/users", class="back-button") ← Back to all users
+  else
+    p User not found

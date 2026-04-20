@@ -1,0 +1,23 @@
+extends layouts/layout.pug
+
+block content
+  h1 Community Members
+
+  .users-list
+    each user in users
+      .user-card
+
+        if user.flag
+          img(src=user.flag, alt=`Flag of ${user.country}`, class="country-flag-small")
+        else
+          span.country-emoji
+
+        h2= user.name
+
+        p Cultural Points: #{user.points || 0}
+        p Cultural Match: #{Math.floor(Math.random() * 100)}%
+
+        p Country: #{user.country}
+        p Bio: #{user.bio}
+
+        a(href=`/users/${user.id}`) View Profile →

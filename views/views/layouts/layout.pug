@@ -1,0 +1,23 @@
+doctype html
+html
+  head
+    title Cultural Connections
+    link(rel="stylesheet", href="/styles.css")
+
+  body
+    // NAVBAR 
+    header.site-header
+      nav.navbar
+        .logo Cultural Connections
+        input(type="text" placeholder="Search")
+        ul.nav-links
+          li: a(href="/") Home
+          li: a(href="/posts") Listing
+          li: a(href="/categories") Categories
+          li: a(href="#") Login/Sign Up
+
+    block content
+
+    // FOOTER
+    footer.site-footer
+      p About | Contact | Privacy Policy | Code of Conduct

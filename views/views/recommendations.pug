@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    title Recommendations
+    link(rel="stylesheet", href="/styles.css")
+  body
+    h1 Recommendations
+    each post in posts
+      .card
+        h3= post.title
+        p= post.country
+        p Match score: #{post.matchScore}

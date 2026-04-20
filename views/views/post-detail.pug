@@ -1,0 +1,30 @@
+extends layouts/layout.pug
+
+block content
+  if post
+    h1= post.title
+    p Country: #{post.country}
+    p= post.content
+  else
+    p Post not found
+
+  // Cultural Rating
+  .rating-section
+    h3 Rate this post
+
+    .stars
+      span.star(data-value="1") ⭐
+      span.star(data-value="2") ⭐
+      span.star(data-value="3") ⭐
+      span.star(data-value="4") ⭐
+      span.star(data-value="5") ⭐
+
+    p Your Rating: 
+      span#user-rating 0
+
+  script.
+    document.querySelectorAll('.star').forEach(star => {
+      star.addEventListener('click', function () {
+        document.getElementById('user-rating').innerText = this.getAttribute('data-value');
+      });
+    });

@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
-const db = require('./Services/db');
+const db = require('./services/db');
+const session = require('express-session');
+const bcrypt = require('bcrypt');
 
 // ===== NEW: Import fetch for API calls =====
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
@@ -12,6 +14,20 @@ app.set("views", "./views");
 // Static files (CSS etc)
 app.use(express.static("public"));
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(session({
+    secret: 'cultural_connections_secret',
+    resave: false,
+    saveUninitialized: false
+}))
+
+function requireLogin(req, res, next) {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+    next(); 
+}
 /* -----------------------------
    HELPER FUNCTION - GET COUNTRY INFO FROM API
 --------------------------------*/
@@ -65,8 +81,245 @@ async function getCountryInfo(countryName) {
 --------------------------------*/
 
 // Homepage 
-app.get("/", async (req, res) => {
-    res.render("index", { title: "Home" });
+app.get("/dashboard", requireLogin, async (req, res) => {
+    res.render('Dashboard', { user: req.session.user });
+
+});
+
+app.get("/register", (req, res) => {
+    res.render("register");
+});
+
+app.post("/register", async (req, res) => {
+    try {
+        const { name, email, password, country, language, interests, bio } = req.body;
+
+        if (!name || !email || !password) {
+            return res.send("Name, email and password are required.");
+        }
+
+        const [existingUsers] = await db.query(
+            "SELECT * FROM users WHERE email = ?",
+            [email]
+        );
+
+        if (existingUsers.length > 0) {
+            return res.send("Email already exists.");
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        await db.query(
+            `INSERT INTO users (name, email, password, country, language, interests, bio, points)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 0)`,
+            [name, email, hashedPassword, country, language, interests, bio]
+        );
+
+        res.redirect("/login");
+    } catch (error) {
+        console.error(error);
+        res.send("Registration failed.");
+    }
+});
+
+app.get("/login", (req, res) => {
+    res.render("login");
+});
+
+app.post("/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const [users] = await db.query(
+            "SELECT * FROM users WHERE email = ?",
+            [email]
+        );
+
+        if (users.length === 0) {
+            return res.send("Invalid email or password.");
+        }
+
+        const user = users[0];
+        const passwordMatch = await bcrypt.compare(password, user.password);
+
+        if (!passwordMatch) {
+            return res.send("Invalid email or password.");
+        }
+
+        req.session.user = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            country: user.country,
+            language: user.language,
+            interests: user.interests,
+            points: user.points
+        };
+
+        res.redirect("/dashboard");
+    } catch (error) {
+        console.error(error);
+        res.send("Login failed.");
+    }
+});
+
+app.get("/logout", (req, res) => {
+    req.session.destroy(() => {
+        res.redirect("/login");
+    });
+});
+
+app.post("/rate", requireLogin, async (req, res) => {
+    try {
+        const { post_id, rating } = req.body;
+        const userId = req.session.user.id;
+        const numericRating = parseInt(rating);
+
+        if (numericRating < 1 || numericRating > 5) {
+            return res.send("Rating must be between 1 and 5.");
+        }
+
+        await db.query(
+            `INSERT INTO ratings (user_id, post_id, rating)
+             VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE rating = VALUES(rating)`,
+            [userId, post_id, numericRating]
+        );
+
+        await db.query(
+            "UPDATE users SET points = points + 5 WHERE id = ?",
+            [userId]
+        );
+
+        res.redirect("/dashboard");
+    } catch (error) {
+        console.error(error);
+        res.send("Could not save rating.");
+    }
+});
+
+app.get("/recommendations", requireLogin, async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+
+        const [userRows] = await db.query(
+            "SELECT * FROM users WHERE id = ?",
+            [userId]
+        );
+
+        const user = userRows[0];
+
+        const [posts] = await db.query("SELECT * FROM posts");
+
+        const userInterests = (user.interests || "")
+            .toLowerCase()
+            .split(",")
+            .map(item => item.trim());
+
+        const scoredPosts = posts.map(post => {
+            let score = 0;
+
+            if (post.country && user.country && post.country.toLowerCase() === user.country.toLowerCase()) {
+                score += 3;
+            }
+
+            if (post.title) {
+                const titleLower = post.title.toLowerCase();
+                userInterests.forEach(interest => {
+                    if (interest && titleLower.includes(interest)) {
+                        score += 4;
+                    }
+                });
+            }
+
+            return { ...post, matchScore: score };
+        });
+
+        scoredPosts.sort((a, b) => b.matchScore - a.matchScore);
+
+        res.render("recommendations", {
+            user,
+            posts: scoredPosts.slice(0, 5)
+        });
+    } catch (error) {
+        console.error(error);
+        res.send("Could not load recommendations.");
+    }
+});
+
+app.get('/matches', requireLogin, async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+
+        const [currentUserRows] = await db.query(
+            'SELECT * FROM users WHERE id = ?',
+            [userId]
+        );
+
+        if (currentUserRows.length === 0) {
+            return res.send('Current user not found.');
+        }
+
+        const currentUser = currentUserRows[0];
+
+        const [otherUsers] = await db.query(
+            'SELECT * FROM users WHERE id != ?',
+            [userId]
+        );
+
+        const currentInterests = (currentUser.interests || '')
+            .toLowerCase()
+            .split(',')
+            .map(item => item.trim())
+            .filter(Boolean);
+
+        const matches = otherUsers.map(user => {
+            let score = 0;
+
+            if (
+                currentUser.country &&
+                user.country &&
+                currentUser.country.toLowerCase() === user.country.toLowerCase()
+            ) {
+                score += 3;
+            }
+
+            if (
+                currentUser.language &&
+                user.language &&
+                currentUser.language.toLowerCase() === user.language.toLowerCase()
+            ) {
+                score += 2;
+            }
+
+            const otherInterests = (user.interests || '')
+                .toLowerCase()
+                .split(',')
+                .map(item => item.trim())
+                .filter(Boolean);
+
+            currentInterests.forEach(interest => {
+                if (otherInterests.includes(interest)) {
+                    score += 4;
+                }
+            });
+
+            return {
+                ...user,
+                matchScore: score
+            };
+        });
+
+        matches.sort((a, b) => b.matchScore - a.matchScore);
+
+        res.render('matches', {
+            currentUser,
+            matches
+        });
+    } catch (error) {
+        console.error(error);
+        res.send('Could not load matches.');
+    }
 });
 
 // Categories page
