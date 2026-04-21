@@ -448,6 +448,11 @@ app.get("/posts/:id", async (req, res) => {
     }
 });
 
+// ===== PUBLIC HOMEPAGE - No login required =====
+app.get("/", (req, res) => {
+    res.render("index", { title: "Home" });
+});
+
 /* -----------------------------
    SERVER START
 --------------------------------*/
