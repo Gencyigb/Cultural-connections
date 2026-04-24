@@ -90,6 +90,10 @@ app.get("/register", (req, res) => {
     res.render("register");
 });
 
+app.get("/register", (req, res) => {
+  res.render("register");
+});
+
 app.post("/register", async (req, res) => {
     try {
         const { name, email, password, country, language, interests, bio } = req.body;
