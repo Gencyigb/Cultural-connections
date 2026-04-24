@@ -1,0 +1,14 @@
+extends layouts/layout.pug
+
+block content
+  .auth-container
+    h2 Sign Up
+
+    form(action="/signup", method="POST")
+      input(type="text", name="username", placeholder="Username", required)
+      input(type="password", name="password", placeholder="Password", required)
+      button(type="submit") Sign Up
+
+    p
+      | Already have an account?
+      a(href="/login") Login
