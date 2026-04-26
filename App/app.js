@@ -4,7 +4,7 @@ const db = require('./services/db');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 
-// ===== NEW: Import fetch for API calls =====
+// Import fetch for API calls
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 // Set view engine
@@ -28,11 +28,10 @@ function requireLogin(req, res, next) {
     }
     next(); 
 }
-/* -----------------------------
-   HELPER FUNCTION - GET COUNTRY INFO FROM API
---------------------------------*/
+// HELPER FUNCTION - GET COUNTRY INFO FROM API
 
-// ===== NEW: Function to fetch country data from Rest Countries API =====
+
+// Function to fetch country data from Rest Countries API 
 async function getCountryInfo(countryName) {
     try {
         // Handle common country name variations
@@ -76,9 +75,7 @@ async function getCountryInfo(countryName) {
     }
 }
 
-/* -----------------------------
-   ROUTES
---------------------------------*/
+// === ROUTES ===
 
 // Homepage 
 app.get("/dashboard", requireLogin, async (req, res) => {
@@ -346,7 +343,7 @@ app.get("/categories", async (req, res) => {
             SELECT DISTINCT country FROM users WHERE country IS NOT NULL
         `);
         
-        // ===== NEW: Fetch flags for each country from API =====
+        // Fetch flags for each country from API 
         const countries = [];
         for (const c of countriesData) {
             const countryInfo = await getCountryInfo(c.country);
@@ -386,7 +383,7 @@ app.get("/users", async (req, res) => {
     try {
         const [users] = await db.query("SELECT * FROM users");
         
-        // ===== NEW: Fetch flag for each user from API =====
+        // Fetch flag for each user from API 
         const usersWithFlags = [];
         for (const user of users) {
             const countryInfo = await getCountryInfo(user.country);
@@ -414,7 +411,7 @@ app.get("/users/:id", async (req, res) => {
         
         const user = users[0];
         
-        // ===== NEW: Fetch detailed country information from API =====
+        // Fetch detailed country information from API 
         const countryInfo = await getCountryInfo(user.country);
         
         res.render("profile", { 
@@ -452,14 +449,12 @@ app.get("/posts/:id", async (req, res) => {
     }
 });
 
-// ===== PUBLIC HOMEPAGE - No login required =====
+// PUBLIC HOMEPAGE - No login required 
 app.get("/", (req, res) => {
     res.render("index", { title: "Home" });
 });
 
-/* -----------------------------
-   SERVER START
---------------------------------*/
+// === SERVER START ===
 
 app.listen(3000, '0.0.0.0', () => {
     console.log("Server running on http://localhost:3000");
