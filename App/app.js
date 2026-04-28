@@ -84,11 +84,11 @@ app.get("/dashboard", requireLogin, async (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-    res.render("register");
+    res.render("signup");
 });
 
-app.get("/register", (req, res) => {
-  res.render("register");
+app.get("/signup", (req, res) => {
+  res.render("signup");
 });
 
 app.post("/register", async (req, res) => {
