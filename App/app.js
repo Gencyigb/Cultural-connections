@@ -4,16 +4,11 @@ const db = require('./services/db');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 
-// Import fetch for API calls
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
-// Set view engine
 app.set("view engine", "pug");
 app.set("views", "./views");
-
-// Static files (CSS etc)
 app.use(express.static("public"));
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(session({
@@ -22,29 +17,51 @@ app.use(session({
     saveUninitialized: false
 }))
 
+app.use((req, res, next) => {
+    res.locals.session = req.session;
+    next();
+});
+
 function requireLogin(req, res, next) {
     if (!req.session.user) {
         return res.redirect('/login');
     }
     next(); 
 }
-// HELPER FUNCTION - GET COUNTRY INFO FROM API
 
-
-// Function to fetch country data from Rest Countries API 
 async function getCountryInfo(countryName) {
     try {
-        // Handle common country name variations
         const countryMap = {
-            'UK': 'United Kingdom',
-            'USA': 'United States',
-            'UAE': 'United Arab Emirates'
+            'UK': 'united-kingdom',
+            'United Kingdom': 'united-kingdom',
+            'England': 'united-kingdom',
+            'USA': 'united-states',
+            'United States': 'united-states',
+            'UAE': 'united-arab-emirates',
+            'Turkey': 'turkey',
+            'China': 'china',
+            'Nigeria': 'nigeria',
+            'Jamaica': 'jamaica',
+            'France': 'france',
+            'Italy': 'italy',
+            'India': 'india',
+            'Germany': 'germany',
+            'Spain': 'spain',
+            'Japan': 'japan',
+            'Canada': 'canada',
+            'Australia': 'australia',
+            'Mexico': 'mexico',
+            'Brazil': 'brazil',
+            'Russia': 'russia',
+            'South Africa': 'south-africa'
         };
         
-        const searchName = countryMap[countryName] || countryName;
+        let searchName = countryMap[countryName];
+        if (!searchName) {
+            searchName = countryName.toLowerCase().replace(/ /g, '-');
+        }
         
-        // Call the Rest Countries API
-        const response = await fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(searchName)}`);
+        const response = await fetch(`https://worldfactbook.io/api/v1/countries/${encodeURIComponent(searchName)}`);
         
         if (!response.ok) {
             return null;
@@ -52,22 +69,17 @@ async function getCountryInfo(countryName) {
         
         const data = await response.json();
         
-        if (!data || data.length === 0) {
+        if (!data || !data.name) {
             return null;
         }
         
-        const country = data[0];
-        
-        // Extract only the information we need
         return {
-            name: country.name.common,
-            flag: country.flags?.png || country.flags?.svg || null,
-            flagAlt: country.flags?.alt || `Flag of ${country.name.common}`,
-            capital: country.capital ? country.capital[0] : 'N/A',
-            population: country.population ? country.population.toLocaleString() : 'N/A',
-            currency: country.currencies ? Object.values(country.currencies)[0].name : 'N/A',
-            region: country.region || 'N/A',
-            maps: country.maps?.googleMaps || null
+            name: data.name,
+            flag: null,
+            capital: data.capital || 'Information not available',
+            population: data.population ? parseInt(data.population).toLocaleString() : 'Information not available',
+            currency: 'Information not available',
+            region: data.region || 'Information not available'
         };
     } catch (error) {
         console.error(`Error fetching country info for ${countryName}:`, error.message);
@@ -77,10 +89,8 @@ async function getCountryInfo(countryName) {
 
 // === ROUTES ===
 
-// Homepage 
 app.get("/dashboard", requireLogin, async (req, res) => {
     res.render('Dashboard', { user: req.session.user });
-
 });
 
 app.get("/register", (req, res) => {
@@ -88,7 +98,7 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/signup", (req, res) => {
-  res.render("signup");
+    res.render("signup");
 });
 
 app.post("/register", async (req, res) => {
@@ -177,25 +187,71 @@ app.post("/rate", requireLogin, async (req, res) => {
         const numericRating = parseInt(rating);
 
         if (numericRating < 1 || numericRating > 5) {
-            return res.send("Rating must be between 1 and 5.");
+            return res.status(400).json({ error: "Rating must be between 1 and 5." });
         }
 
-        await db.query(
-            `INSERT INTO ratings (user_id, post_id, rating)
-             VALUES (?, ?, ?)
-             ON DUPLICATE KEY UPDATE rating = VALUES(rating)`,
-            [userId, post_id, numericRating]
+        // Check if user already rated this post
+        const [existingRating] = await db.query(
+            "SELECT rating FROM ratings WHERE user_id = ? AND post_id = ?",
+            [userId, post_id]
         );
 
-        await db.query(
-            "UPDATE users SET points = points + 5 WHERE id = ?",
+        let pointsToAdd = 0;
+        let message = "";
+        let newPoints = 0;
+
+        if (existingRating.length === 0) {
+            // First time rating - add 1 point
+            pointsToAdd = 1;
+            message = "Thank you for rating! You earned 1 point.";
+            
+            // Insert new rating
+            await db.query(
+                "INSERT INTO ratings (user_id, post_id, rating) VALUES (?, ?, ?)",
+                [userId, post_id, numericRating]
+            );
+        } else {
+            // Already rated before - update rating but NO points
+            pointsToAdd = 0;
+            message = "Rating updated! (No points added - you already rated this post before)";
+            
+            // Update existing rating
+            await db.query(
+                "UPDATE ratings SET rating = ? WHERE user_id = ? AND post_id = ?",
+                [numericRating, userId, post_id]
+            );
+        }
+
+        // Add points to user (only if first time rating)
+        if (pointsToAdd > 0) {
+            await db.query(
+                "UPDATE users SET points = points + ? WHERE id = ?",
+                [pointsToAdd, userId]
+            );
+            
+            // Update session points
+            req.session.user.points = (req.session.user.points || 0) + pointsToAdd;
+        }
+
+        // Get updated user points
+        const [userPoints] = await db.query(
+            "SELECT points FROM users WHERE id = ?",
             [userId]
         );
+        
+        newPoints = userPoints[0]?.points || 0;
 
-        res.redirect("/dashboard");
+        // Return JSON response (no redirect)
+        res.json({
+            success: true,
+            message: message,
+            points: newPoints,
+            rating: numericRating
+        });
+        
     } catch (error) {
-        console.error(error);
-        res.send("Could not save rating.");
+        console.error("Rating error:", error);
+        res.status(500).json({ error: "Could not save rating." });
     }
 });
 
@@ -323,7 +379,6 @@ app.get('/matches', requireLogin, async (req, res) => {
     }
 });
 
-// Categories page
 app.get("/categories", async (req, res) => {
     try {
         const [categories] = await db.query(`
@@ -343,23 +398,20 @@ app.get("/categories", async (req, res) => {
             SELECT DISTINCT country FROM users WHERE country IS NOT NULL
         `);
         
-        // Fetch flags for each country from API 
         const countries = [];
         for (const c of countriesData) {
             const countryInfo = await getCountryInfo(c.country);
             countries.push({
                 name: c.country,
-                flag: countryInfo?.flag || '🌍',
+                flag: null,
                 postCount: 0
             });
         }
         
-        // Get post counts per country
         const [postCounts] = await db.query(`
             SELECT country, COUNT(*) as count FROM posts GROUP BY country
         `);
         
-        // Update post counts
         for (const country of countries) {
             const found = postCounts.find(p => p.country === country.name);
             country.postCount = found ? found.count : 0;
@@ -378,18 +430,16 @@ app.get("/categories", async (req, res) => {
     }
 });
 
-// Users list page - WITH FLAGS FROM API
 app.get("/users", async (req, res) => {
     try {
         const [users] = await db.query("SELECT * FROM users");
         
-        // Fetch flag for each user from API 
         const usersWithFlags = [];
         for (const user of users) {
             const countryInfo = await getCountryInfo(user.country);
             usersWithFlags.push({
                 ...user,
-                flag: countryInfo?.flag || null,
+                flag: null,
                 countryInfo: countryInfo
             });
         }
@@ -401,7 +451,6 @@ app.get("/users", async (req, res) => {
     }
 });
 
-// Single user profile - WITH FULL COUNTRY INFO FROM API
 app.get("/users/:id", async (req, res) => {
     try {
         const [users] = await db.query("SELECT * FROM users WHERE id = ?", [req.params.id]);
@@ -410,8 +459,6 @@ app.get("/users/:id", async (req, res) => {
         }
         
         const user = users[0];
-        
-        // Fetch detailed country information from API 
         const countryInfo = await getCountryInfo(user.country);
         
         res.render("profile", { 
@@ -424,7 +471,6 @@ app.get("/users/:id", async (req, res) => {
     }
 });
 
-// Posts list page
 app.get("/posts", async (req, res) => {
     try {
         const [posts] = await db.query("SELECT * FROM posts");
@@ -435,26 +481,38 @@ app.get("/posts", async (req, res) => {
     }
 });
 
-// Single post detail page
 app.get("/posts/:id", async (req, res) => {
     try {
         const [posts] = await db.query("SELECT * FROM posts WHERE id = ?", [req.params.id]);
         if (posts.length === 0) {
             return res.status(404).send("Post not found");
         }
-        res.render("post-detail", { post: posts[0] });
+        
+        const post = posts[0];
+        let userRating = 0;
+        
+        if (req.session.user) {
+            const [ratingResult] = await db.query(
+                "SELECT rating FROM ratings WHERE user_id = ? AND post_id = ?",
+                [req.session.user.id, req.params.id]
+            );
+            if (ratingResult.length > 0) {
+                userRating = ratingResult[0].rating;
+            }
+        }
+        
+        post.userRating = userRating;
+        
+        res.render("post-detail", { post: post });
     } catch (err) {
         console.error(err);
         res.status(500).send("Database error: " + err.message);
     }
 });
 
-// PUBLIC HOMEPAGE - No login required 
 app.get("/", (req, res) => {
     res.render("index", { title: "Home" });
 });
-
-// === SERVER START ===
 
 app.listen(3000, '0.0.0.0', () => {
     console.log("Server running on http://localhost:3000");

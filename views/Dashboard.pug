@@ -1,0 +1,44 @@
+extends layouts/layout.pug
+
+block content
+  .dashboard-container
+    .dashboard-header
+      h1 Welcome back, #{user.name}!
+      p Here's your cultural dashboard
+    
+    .dashboard-stats
+      .stat-card
+        h3 Points Balance
+        p.stat-number #{user.points || 0}
+        p.points-text Earn points by rating posts!
+      
+      .stat-card
+        h3 Member Since
+        p.stat-text New member
+      
+      .stat-card
+        h3 Contributions
+        p.stat-text 0 posts
+    
+    .dashboard-info
+      .info-section
+        h2 Your Profile
+        p <strong>Name:</strong> #{user.name}
+        p <strong>Email:</strong> #{user.email}
+        p <strong>Country:</strong> #{user.country || 'Not specified'}
+        p <strong>Languages:</strong> #{user.language || 'Not specified'}
+        p <strong>Interests:</strong> #{user.interests || 'Not specified'}
+        p <strong>Bio:</strong> #{user.bio || 'Not specified'}
+      
+      .action-section
+        h2 Quick Actions
+        .action-buttons
+          a.button(href="/categories") Browse Categories
+          a.button(href="/posts") View Posts
+          a.button(href="/users") Find Community
+          a.button(href="/recommendations") Get Recommendations
+          a.button(href="/matches") Find Matches
+    
+    .dashboard-tips
+      h3 💡 Cultural Tip
+      p Share your traditions and explore others to earn points and build connections!

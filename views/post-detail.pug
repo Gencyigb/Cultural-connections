@@ -8,23 +8,80 @@ block content
   else
     p Post not found
 
-  // Cultural Rating
+  // Cultural Rating Section
   .rating-section
     h3 Rate this post
-
     .stars
-      span.star(data-value="1") ⭐
-      span.star(data-value="2") ⭐
-      span.star(data-value="3") ⭐
-      span.star(data-value="4") ⭐
-      span.star(data-value="5") ⭐
-
+      - var currentRating = post.userRating || 0
+      each val in [1, 2, 3, 4, 5]
+        span.star(data-value=val, class=(val <= currentRating ? 'active' : '')) ⭐
     p Your Rating: 
-      span#user-rating 0
+      span#user-rating= currentRating
+    p#rating-message(style="color: green; margin-top: 10px;")
 
   script.
     document.querySelectorAll('.star').forEach(star => {
-      star.addEventListener('click', function () {
-        document.getElementById('user-rating').innerText = this.getAttribute('data-value');
+      star.addEventListener('click', async function() {
+        const rating = this.getAttribute('data-value');
+        const postId = #{post.id};
+        
+        // Update star display immediately (optimistic update)
+        document.getElementById('user-rating').innerText = rating;
+        document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+        for (let i = 0; i < rating; i++) {
+          document.querySelectorAll('.star')[i].classList.add('active');
+        }
+        
+        // Show loading message
+        const messageDiv = document.getElementById('rating-message');
+        messageDiv.innerHTML = 'Saving your rating...';
+        messageDiv.style.color = 'blue';
+        
+        try {
+          // Send rating to server
+          const formData = new URLSearchParams();
+          formData.append('post_id', postId);
+          formData.append('rating', rating);
+          
+          const response = await fetch('/rate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: formData
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            // Show success message
+            messageDiv.innerHTML = `✓ ${data.message} | Your total points: ${data.points}`;
+            messageDiv.style.color = 'green';
+            
+            // Update points display on dashboard link if visible
+            const pointsSpan = document.querySelector('.user-points');
+            if (pointsSpan) {
+              pointsSpan.innerText = `⭐ ${data.points} points`;
+            }
+          } else {
+            messageDiv.innerHTML = `✗ Error: ${data.error}`;
+            messageDiv.style.color = 'red';
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          messageDiv.innerHTML = '✗ Failed to save rating. Please try again.';
+          messageDiv.style.color = 'red';
+        }
+        
+        // Fade out message after 3 seconds
+        setTimeout(() => {
+          if (messageDiv.innerHTML !== 'Saving your rating...') {
+            messageDiv.style.opacity = '0';
+            setTimeout(() => {
+              messageDiv.innerHTML = '';
+              messageDiv.style.opacity = '1';
+            }, 500);
+          }
+        }, 3000);
       });
     });

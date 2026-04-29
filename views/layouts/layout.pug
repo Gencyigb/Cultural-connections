@@ -1,23 +1,16 @@
 doctype html
 html
   head
-    title Cultural Connections
+    title Cultural Connections - #{title}
     link(rel="stylesheet", href="/styles.css")
-
+    // Twemoji - converts emojis to images that work on all devices
+    script(src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous")
+    script.
+      window.onload = function() {
+        twemoji.parse(document.body);
+      }
   body
-    // NAVBAR 
-    header.site-header
-      nav.navbar
-        .logo Cultural Connections
-        input(type="text" placeholder="Search")
-        ul.nav-links
-          li: a(href="/") Home
-          li: a(href="/posts") Listing
-          li: a(href="/categories") Categories
-          li: a(href="/signup") Login/Sign Up
-
-    block content
-
-    // FOOTER
-    footer.site-footer
-      p About | Contact | Privacy Policy | Code of Conduct
+    include ../partials/header.pug
+    main.container
+      block content
+    include ../partials/footer.pug

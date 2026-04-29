@@ -1,12 +1,26 @@
+// DEBUG: session = #{JSON.stringify(session)}
+// DEBUG: user = #{session ? session.user : 'no session'}
+
 header.site-header
   nav.navbar
     .logo
       a(href="/") Cultural Connections
+    
     ul.nav-links
-      li: a(href="/users") Community
-      li: a(href="/posts") Posts
+      li: a(href="/") Home
       li: a(href="/categories") Categories
+      li: a(href="/posts") Posts
+      li: a(href="/users") Community
+      
+      if session && session.user
+        li.dashboard-link: a(href="/dashboard") My Dashboard
+        li.user-name: span 👤 #{session.user.name}
+        li: a(href="/logout") Logout
+      else
+        li: a(href="/login") Login
+        li: a(href="/signup") Sign Up
+    
     .search-box
       form(action="/search", method="GET")
         input(type="text", name="q", placeholder="Search...")
-        button(type="submit")
+        button(type="submit") 🔍

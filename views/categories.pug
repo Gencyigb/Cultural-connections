@@ -2,12 +2,10 @@ extends layouts/layout.pug
 
 block content
   .categories-page
-    // Hero Section
     .hero-section
       h1.hero-title Explore World Cultures
       p.hero-subtitle Discover traditions, food, languages, and festivals from around the globe
     
-    // Main Categories Section
     section.categories-section
       h2.section-title Browse by Topic
       .category-grid
@@ -29,23 +27,18 @@ block content
             .category-overlay
               a.category-link(href=`/posts?category=${category.name.toLowerCase()}`) Explore →
     
-    // Countries Section with Flags
     section.countries-section
       h2.section-title Explore by Country
       .countries-grid
         each country in countries
           .country-card
             .country-flag-wrapper
-              if country.flag && country.flag.startsWith('http')
-                img.country-flag(src=country.flag, alt=country.name)
-              else
-                span.country-flag-emoji= country.flag || '🌍'
+              span.country-flag-emoji(style="font-size: 32px;") 🌍
             .country-info
               h3.country-name= country.name
               span.country-post-count #{country.postCount || 0} cultural posts
             a.country-link(href=`/posts?country=${country.name}`) View posts →
-
-    // Popular Tags Section
+    
     section.tags-section
       h2.section-title Popular Tags
       .tags-cloud
@@ -54,9 +47,8 @@ block content
             span.tag-hash #
             span.tag-name= tag.name
             span.tag-count= tag.count
-
-    // Call to Action
+    
     .cta-section
       h3 Ready to share your culture?
       p Join our community and start sharing today
-      a.cta-button(href="/users") Join Community →
+      a.cta-button(href="/signup") Join Community →
