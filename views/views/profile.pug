@@ -1,13 +1,13 @@
-extends layouts/layout.pug
+if user
+  .profile-container
+    h1= user.name
+    p Country: #{user.country}
+    p Languages: #{user.language}
+    p Interests: #{user.interests}
+    p Bio: #{user.bio}
 
-block content
-  if user
-    .profile-container
-      h1= user.name
-      p Country: #{user.country}
-      p Languages: #{user.language}
-      p Interests: #{user.interests}
-      p Bio: #{user.bio}
+    .action-buttons
+      a.button(href=`/messages/${user._id}`) Message
       
       if countryInfo
         hr
