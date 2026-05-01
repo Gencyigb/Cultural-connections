@@ -510,6 +510,63 @@ app.get("/posts/:id", async (req, res) => {
     }
 });
 
+// MESSAGING SYSTEM 
+
+// Open chat between users
+app.get("/chat/:userId", requireLogin, async (req, res) => {
+  try {
+    const currentUserId = req.session.user.id;
+    const otherUserId = req.params.userId;
+
+    const [messages] = await db.query(
+      `SELECT * FROM messages 
+       WHERE (sender_id = ? AND receiver_id = ?)
+       OR (sender_id = ? AND receiver_id = ?)
+       ORDER BY created_at ASC`,
+      [currentUserId, otherUserId, otherUserId, currentUserId]
+    );
+
+    const [otherUser] = await db.query(
+      "SELECT * FROM users WHERE id = ?",
+      [otherUserId]
+    );
+
+    res.render("chat", {
+      messages,
+      otherUser: otherUser[0],
+      currentUser: req.session.user
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.send("Error loading chat");
+  }
+});
+
+
+// Send message
+app.post("/chat/send", requireLogin, async (req, res) => {
+  try {
+    const senderId = req.session.user.id;
+    const { receiver_id, content } = req.body;
+
+    if (!content) {
+      return res.send("Message cannot be empty");
+    }
+
+    await db.query(
+      "INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)",
+      [senderId, receiver_id, content]
+    );
+
+    res.redirect(`/chat/${receiver_id}`);
+
+  } catch (err) {
+    console.error(err);
+    res.send("Error sending message");
+  }
+});
+
 app.get("/", (req, res) => {
     res.render("index", { title: "Home" });
 });
