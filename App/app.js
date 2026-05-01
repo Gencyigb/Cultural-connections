@@ -571,6 +571,20 @@ app.get("/", (req, res) => {
     res.render("index", { title: "Home" });
 });
 
+// CHAT PAGE
+app.get("/chat/:id", requireLogin, async (req, res) => {
+  const otherUserId = req.params.id;
+
+  res.render("chat", {
+    otherUserId
+  });
+});
+
+// SEND MESSAGE (temporary)
+app.post("/chat/:id", requireLogin, (req, res) => {
+  res.redirect(`/chat/${req.params.id}`);
+});
+
 app.listen(3000, '0.0.0.0', () => {
     console.log("Server running on http://localhost:3000");
 });
