@@ -2,13 +2,17 @@ extends layouts/layout.pug
 
 block content
   h1.page-title Community Members
-  
+
   .users-list
     each user in users
       .user-card
         span.country-flag-emoji(style="font-size: 40px; display: block; text-align: center;") 🌍
-        
+
         h3= user.name
         p 📍 #{user.country}
         p 💬 #{user.bio}
+
         a.btn.small(href=`/users/${user.id}`) View Profile →
+
+        if session.user && user.id != session.user.id
+          a.btn.small.message-btn(href=`/chat/${user.id}`) Message 💬
